@@ -192,7 +192,7 @@ STRINGS: dict[str, dict[str, str]] = {
         "adm_editpay_account": "အကောင့်ပိုင်ရှင် နာမည်အသစ် ပေးပို့ပါ (မပြောင်းလိုပါက /skip):",
         "adm_editpay_number": "အကောင့် နံပါတ်အသစ် ပေးပို့ပါ (မပြောင်းလိုပါက /skip):",
         "adm_editpay_qr": "QR Code ပုံအသစ် ပေးပို့ပါ (မပြောင်းလိုပါက /skip):",
-        "adm_editpay_done": "✅ နည်းလမ်း #{id} ပြင်ဆင်ပြီးပါပြီ။",
+        "adm_editpay_done": "✅ ��ည်းလမ်း #{id} ပြင်ဆင်ပြီးပါပြီ။",
         "adm_setgroup_ok": "✅ Admin group ကို ဤ chat (<code>{gid}</code>) သို့ သတ်မှတ်ပြီးပါပြီ။",
         "adm_give_help": "➕ <b>အခမဲ့ Access ပေးမည်</b>\n\n/give &lt;user_id&gt; forever\n/give &lt;user_id&gt; month &lt;1-12&gt;\n/give &lt;user_id&gt; year &lt;1-12&gt;",
         "adm_revoke_help": "❌ <b>Access ပယ်ဖျက်မည်</b>\n\n/revoke &lt;user_id&gt;\n\nAdmin ပေးသော access သာ ပယ်ဖျက်သည်။",
@@ -1628,7 +1628,22 @@ def webhook():
 
 @app.route("/", methods=["GET"])
 def health():
-    return "X For You Bot — webhook active", 200
+    html = """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>X For You Bot</title>
+        <script defer src="https://cdn.vercel-insights.com/v1/script.js"></script>
+    </head>
+    <body>
+        <h1>X For You Bot — webhook active</h1>
+        <p>This is a Telegram bot webhook endpoint. The bot is running and ready to receive updates.</p>
+    </body>
+    </html>
+    """
+    return html, 200
 
 
 @app.route("/set_webhook", methods=["GET"])
@@ -1639,10 +1654,41 @@ def set_webhook():
     """
     webhook_url = request.args.get("url", "")
     if not webhook_url:
-        return "Pass ?url=https://your-domain.vercel.app/webhook", 400
+        html = """
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Set Webhook - X For You Bot</title>
+            <script defer src="https://cdn.vercel-insights.com/v1/script.js"></script>
+        </head>
+        <body>
+            <h1>Webhook Setup</h1>
+            <p>Pass ?url=https://your-domain.vercel.app/webhook</p>
+        </body>
+        </html>
+        """
+        return html, 400
     import urllib.request, json as _json
     api = f"https://api.telegram.org/bot{BOT_TOKEN}/setWebhook"
     payload = _json.dumps({"url": webhook_url}).encode()
     req     = urllib.request.Request(api, data=payload, headers={"Content-Type": "application/json"})
     resp    = urllib.request.urlopen(req)
-    return resp.read().decode(), 200
+    result = resp.read().decode()
+    html = f"""
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Webhook Set - X For You Bot</title>
+        <script defer src="https://cdn.vercel-insights.com/v1/script.js"></script>
+    </head>
+    <body>
+        <h1>Webhook Configuration Result</h1>
+        <pre>{result}</pre>
+    </body>
+    </html>
+    """
+    return html, 200
