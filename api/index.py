@@ -33,7 +33,7 @@ from typing import Optional
 
 import httpx
 from dotenv import load_dotenv
-from flask import Flask, request
+from flask import Flask, request, render_template
 
 from telegram import (
     Update,
@@ -1818,7 +1818,8 @@ def webhook():
 
 @app.route("/", methods=["GET"])
 def health():
-    return "X For You Bot — webhook active", 200
+    """Landing page with Vercel Analytics"""
+    return render_template("index.html")
 
 
 @app.route("/set_webhook", methods=["GET"])
